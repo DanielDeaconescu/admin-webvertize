@@ -1,47 +1,31 @@
+// Dashboard.jsx
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  const [submissions, setSubmissions] = useState([]);
+  const [entries, setEntries] = useState([]);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('adminToken');
-
-    if (!token) {
-      window.location.href = '/';
-      return;
+    async function loadSubmissions() {
+      const res = await fetch('/api/submissions');
+      const data = await res.json();
+      setEntries(data);
     }
-
-    fetch('/api/submissions', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          sessionStorage.removeItem('adminToken');
-          window.location.href = '/';
-        }
-        return res.json();
-      })
-      .then((json) => setSubmissions(json.submissions || []));
+    loadSubmissions();
   }, []);
 
   return (
     <div>
-      <h1>Submissions</h1>
-      {submissions.map((s) => (
-        <div key={s._id}>
-          <p>
-            <strong>Name:</strong> {s.name}
-          </p>
-          <p>
-            <strong>Email:</strong> {s.email}
-          </p>
-          <p>
-            <strong>Message:</strong> {s.message}
-          </p>
-          <p>{new Date(s.createdAt).toLocaleString()}</p>
-          <hr />
-        </div>
-      ))}
+      <h1>Form Submissions</h1>
+      <ul>
+        {entries.map((item) => (
+          <li key={item._id}>
+            <strong>{item.name}</strong> — {item.email}
+            <br />
+            {item.message}
+            <hr />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -1,8 +1,10 @@
+// Login.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -13,12 +15,11 @@ export default function Login({ onLogin }) {
       body: JSON.stringify({ password }),
     });
 
-    if (res.ok) {
-      const json = await res.json();
-      sessionStorage.setItem('adminToken', json.token);
-      onLogin();
+    if (res.status === 200) {
+      onLoginSuccess();
+      navigate('/dashboard');
     } else {
-      setError('Wrong password');
+      alert('Wrong password');
     }
   }
 
@@ -26,11 +27,10 @@ export default function Login({ onLogin }) {
     <form onSubmit={handleSubmit}>
       <input
         type="password"
-        placeholder="Admin password"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button>Log in</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button type="submit">Login</button>
     </form>
   );
 }
