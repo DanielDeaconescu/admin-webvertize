@@ -16,6 +16,10 @@ export default function Login({ onLoginSuccess }) {
     });
 
     if (res.status === 200) {
+      const json = await res.json();
+
+      // store the token safely
+      sessionStorage.setItem('adminToken', json.token);
       onLoginSuccess();
       navigate('/dashboard');
     } else {

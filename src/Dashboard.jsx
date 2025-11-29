@@ -6,9 +6,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadSubmissions() {
-      const res = await fetch('/api/submissions');
+      const token = sessionStorage.getItem('adminToken');
+
+      const res = await fetch('/api/submissions', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status !== 200) {
+        alert('Unauthorized');
+        return;
+      }
+
       const data = await res.json();
-      setEntries(data);
+      setEntries(data.submissions || []);
     }
     loadSubmissions();
   }, []);
